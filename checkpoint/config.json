@@ -1,0 +1,150 @@
+{
+    "name": "exp_dim",
+    "project_path": "HVR-SSLE",
+    "wandb_project_name": "HVR-SSLE",
+    "width": 224,
+    "height": 224,
+    "sample_width": 256,
+    "sample_height": 256,
+    "autocast_dtype": "bf16",
+    "checkpoint": true,
+    "batch_size": 64,
+    "num_workers": 6,
+    "dataloader_prefetch_factor": 4,
+    "num_epochs": 300,
+    "gradient_accumulation_steps": 1,
+    "learning_rate_static": false,
+    "learning_rate": 0.0005,
+    "learning_rate_min": 1e-9,
+    "lr_cosine_warmup_rate": 0.05,
+    "lr_cosine_cycles": 2,
+    "lr_scaling_factor": 0.2,
+    "normalize_one_to_one": true,
+    "normalize_max": false,
+    "loss_weight": {
+        "mae": 1.0,
+        "sat": 1.0,
+        "lpips": 0.1
+    },
+    "exposure_mean": 0.5,
+    "exposure_loss_patch_size": 16,
+    "augument_rate": 0.1,
+    "image_mask": {
+        "black_percentage": 10.0,
+        "min_size": 1,
+        "max_size": 2,
+        "p": 0.1
+    },
+    "blur": true,
+    "fill_noise": true,
+    "noise_rate": 0.1,
+    "image_preprocessing_config": {
+        "alpha": {
+            "min_val": 0.0,
+            "max_val": 0.3,
+            "precision": 3
+        },
+        "k": {
+            "min_val": 0.0,
+            "max_val": 0.4,
+            "mean": 0.0,
+            "precision": 3
+        },
+        "l": {
+            "min_val": 0.0,
+            "max_val": 0.95,
+            "mean": 0.0,
+            "precision": 3
+        }
+    },
+    "image_preprocessing_schedule": null,
+    "pre_trained": false,
+    "z_distribution": {
+        "mean": 0.0,
+        "std": 1.0,
+        "a": -1.0,
+        "b": 1.0,
+        "zeros": false
+    },
+    "HVR_T": 2,
+    "HVR_C": 2,
+    "HVR_N_supervision": 2,
+    "HVR_N_supervision_inference_factor": 1,
+    "embed_dims": 24,
+    "z_dims": 24,
+    "LightUnetPP": {
+        "init_features": 24,
+        "num_groups": 2
+    },
+    "Swin2SR": {
+        "depths": [
+            2,
+            2
+        ],
+        "num_heads": [
+            4,
+            4
+        ],
+        "window_size": 8,
+        "mlp_ratio": 2.0,
+        "drop_rate": 0.0,
+        "attn_drop_rate": 0.0,
+        "drop_path_rate": 0.0,
+        "resi_connection": "1conv"
+    },
+    "save_every": 10,
+    "device": "cuda",
+    "progress_bar": true,
+    "coco_train_dir": "\/dev\/shm\/dataset\/coco\/train2017",
+    "coco_val_dir": "\/dev\/shm\/dataset\/coco\/val2017",
+    "coco_train_annotation_file_path": "\/dev\/shm\/dataset\/coco\/annotations\/instances_train2017.json",
+    "coco_val_annotation_file_path": "\/dev\/shm\/dataset\/coco\/annotations\/instances_val2017.json",
+    "train_image_ids": null,
+    "validation_image_ids": null,
+    "test_image_ids": null,
+    "output_dir": ".\/checkpoint",
+    "sample_num": 20,
+    "num_sample_batch": 1,
+    "eval_dataset": {
+        "LOLv1": {
+            "input_dir": "dataset\/LOLv1\/eval15\/low",
+            "target_dir": "dataset\/LOLv1\/eval15\/high",
+            "width": 600,
+            "height": 400
+        },
+        "LOLv2_real": {
+            "input_dir": "dataset\/LOL-v2\/Real_captured\/Test\/Low",
+            "target_dir": "dataset\/LOL-v2\/Real_captured\/Test\/Normal",
+            "width": 600,
+            "height": 400
+        },
+        "LOLv2_synthetic": {
+            "input_dir": "dataset\/LOL-v2\/Synthetic\/Test\/Low",
+            "target_dir": "dataset\/LOL-v2\/Synthetic\/Test\/Normal",
+            "width": 384,
+            "height": 384
+        },
+        "LSRW_Huawei": {
+            "input_dir": "dataset\/LSRW\/Eval\/Huawei\/low",
+            "target_dir": "dataset\/LSRW\/Eval\/Huawei\/high",
+            "width": 960,
+            "height": 720
+        },
+        "LSRW_Nikon": {
+            "input_dir": "dataset\/LSRW\/Eval\/Nikon\/low",
+            "target_dir": "dataset\/LSRW\/Eval\/Nikon\/high",
+            "width": 960,
+            "height": 640
+        }
+    },
+    "save_train_samples": true,
+    "eval_batch_scale_factor": 0.1,
+    "logging": true,
+    "tqdm_length": 80,
+    "sampling_train_dataset": 1.0,
+    "debug": 0,
+    "info": "ai-server-a100",
+    "start_epoch": 300,
+    "completed_steps": 69300,
+    "best_val_loss": 0.12798869609832764
+}
