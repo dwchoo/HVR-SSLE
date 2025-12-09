@@ -127,7 +127,10 @@ def train(config):
         EXP_RESULT_DIR = os.path.join(config.output_dir, f"{config.wandb_project_name}_{config.name}_{_date_time}")
         logger.info(f"Starting new training. Experiment directory: {EXP_RESULT_DIR}")
 
-    # wandb 재개 시 경로 불일치 문제를 피하기 위해 EXP_RESULT_DIR을 절대 경로로 변환합니다.
+
+    wandb_mode = os.getenv("WANDB_MODE", "offline")
+    use_wandb_tracker = True
+
     EXP_RESULT_DIR = os.path.abspath(EXP_RESULT_DIR)
 
     COCO_TRAIN_DIR = config.coco_train_dir
@@ -165,7 +168,7 @@ def train(config):
         mixed_precision=config.autocast_dtype, # 'fp16' or 'bf16' can be used
         gradient_accumulation_steps=GRADIENT_ACCUMULATION_STEPS,
         kwargs_handlers=[ddp_kwargs, init_kwargs], # Apply DDP settings
-        log_with="wandb", # wandb 로깅 활성화
+        log_with = "wandb" if use_wandb_tracker else None,
         project_dir=EXP_RESULT_DIR, # Accelerate 프로젝트 설정 및 체크포인트 저장 경로
         #even_batches=True,
     )
@@ -182,7 +185,10 @@ def train(config):
             with open(wandb_id_path, "r") as f:
                 wandb_id = f.read().strip()
 
-        wandb_init_kwargs = {}
+        wandb_init_kwargs = {
+            'mode' : wandb_mode,
+            "dir": EXP_RESULT_DIR
+        }
         if wandb_id:
             wandb_init_kwargs["id"] = wandb_id
             wandb_init_kwargs["resume"] = "must"
@@ -314,6 +320,7 @@ def train(config):
 
         else:
             wandb_tracker = None
+        
 
 
         # --- 모델, 손실 함수, 옵티마이저 초기화 ---

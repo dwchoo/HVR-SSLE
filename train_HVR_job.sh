@@ -26,13 +26,16 @@ fi
 # --- Training script args ---
 export WANDB_BASE_URL
 export WANDB_API_KEY
+export WANDB_MODE
 wandb login
+
+
 # Enable detailed PyTorch distributed debug logs.
 export TORCH_DISTRIBUTED_DEBUG=DETAIL
 
 # --- Experiment list ---
 #EXP_LIST=("exp0" "exp1" "exp2")
-EXP_LIST=("short_test")
+EXP_LIST=("default")
 
 # --- Run accelerate launch ---
 for exp_name_item in "${EXP_LIST[@]}"
