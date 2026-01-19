@@ -64,12 +64,19 @@ Low-light image enhancement (LLIE) is a fundamental problem in computational pho
     --output_dir results/out \
     --device auto
   ```
-- Options: `--check_gpu_mem` (dummy run to print GPU memory), overrides for sampling (`--hvr_t`, `--hvr_c`, `--hvr_n_supervision`, `--hvr_n_sup_factor`).
+- Notes:
+  - Uses `torch.compile` when available (PyTorch 2.x); falls back to eager mode if not.
+  - Runs `forward` repeatedly for `N_supervision` steps (from config + overrides) instead of `model.sample`.
+  - Autocast is enabled on CUDA when `autocast_dtype` is `bf16` or `fp16` (bf16 requires hardware support).
+- Options: `--check_gpu_mem` (dummy run to print GPU memory), overrides for iterative steps (`--hvr_t`, `--hvr_c`, `--hvr_n_supervision`, `--hvr_n_sup_factor`).
 - Example script: edit paths in `infer_image.sh` and run `bash infer_image.sh`.
 
 ## Outputs
 - Training: `checkpoint/<run>/` holds `config.json`, `checkpoint_epoch_latest`, `best_model`, `wandb_id.txt`.
 - Inference: saved to `--output_dir` with original filenames.
+
+## Analysis
+- SSIM-based train/test overlap analysis is in `analysis/` (CSV matrices, derived match lists, and a heatmap PDF). See `analysis/README.md` for details.
 
 ## Troubleshooting
 - wandb 401: set `WANDB_DISABLED=true` or run `wandb login` with valid token.

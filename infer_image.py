@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import argparse
 import json
+from contextlib import nullcontext
 from pathlib import Path
 from typing import List
 
@@ -126,6 +127,18 @@ def load_state_dict_with_fallback(model: torch.nn.Module, state_dict):
         model.load_state_dict(cleaned)
 
 
+def autocast_context(cfg: Config, device: torch.device):
+    if device.type != "cuda":
+        return nullcontext()
+    if cfg.autocast_dtype == "bf16":
+        if not torch.cuda.is_bf16_supported():
+            return nullcontext()
+        return torch.autocast(device_type="cuda", dtype=torch.bfloat16)
+    if cfg.autocast_dtype == "fp16":
+        return torch.autocast(device_type="cuda", dtype=torch.float16)
+    return nullcontext()
+
+
 def measure_gpu_memory_with_dummy(model, cfg, device,
                                   height: int = 400, width: int = 600) -> None:
     """더미 (width x height) 이미지를 1장 넣었을 때 GPU 메모리 사용량을 출력."""
@@ -150,13 +163,10 @@ def measure_gpu_memory_with_dummy(model, cfg, device,
     )
 
     with torch.inference_mode():
-        # HVR 인터페이스에 맞춰서 한 번 샘플링
-        (_, _), _ = model.sample(
-            dummy,
-            T=cfg.HVR_T,
-            C=cfg.HVR_C,
-            N_supervision=n_supervision,
-        )
+        with autocast_context(cfg, device):
+            z = None
+            for _ in range(n_supervision):
+                z, _ = model(dummy, z)
 
     torch.cuda.synchronize(device)
 
@@ -220,7 +230,7 @@ def main():
     if args.hvr_t is not None:
         cfg.HVR_T = args.hvr_t
     if args.hvr_c is not None:
-        cfg.HVR_C = args.hvr_n
+        cfg.HVR_C = args.hvr_c
     if args.hvr_n_supervision is not None:
         cfg.HVR_N_supervision = args.hvr_n_supervision
     if args.hvr_n_sup_factor is not None:
@@ -238,10 +248,11 @@ def main():
     state_dict = load_file(weights_path, device=load_device)
     load_state_dict_with_fallback(model, state_dict)
     model.eval()
+    compiled_model = torch.compile(model) if hasattr(torch, "compile") else model
 
     # ---- 여기 추가: GPU 메모리 측정 모드 ----
     if args.check_gpu_mem:
-        measure_gpu_memory_with_dummy(model, cfg, device, height=400, width=600)
+        measure_gpu_memory_with_dummy(compiled_model, cfg, device, height=400, width=600)
         return
     # -----------------------------------
 
@@ -256,12 +267,11 @@ def main():
     for img_path in pbar:
         img_tensor = load_image(img_path, preprocess).unsqueeze(0).to(device)
         with torch.inference_mode():
-            (_, _), output = model.sample(
-                img_tensor,
-                T=cfg.HVR_T,
-                C=cfg.HVR_C,
-                N_supervision=n_supervision,
-            )
+            with autocast_context(cfg, device):
+                z = None
+                output = None
+                for _ in range(n_supervision):
+                    z, output = compiled_model(img_tensor, z)
         output_single = output.squeeze(0).cpu()
         out_path = output_dir / img_path.name
         save_image(output_single, out_path, preprocess)
