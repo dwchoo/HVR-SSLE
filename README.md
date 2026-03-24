@@ -1,5 +1,7 @@
 # HVR-SSLE
 
+> **Published in IEEE Access 2026** — see the final paper version here: [DOI: 10.1109/ACCESS.2026.3665009](https://doi.org/10.1109/ACCESS.2026.3665009)
+
 ## Abstract
 Low-light image enhancement (LLIE) is a fundamental problem in computational photography, aiming to restore images degraded by coupled noise, color distortion, and detail loss under poor illumination. While recent Transformer- and diffusion-based approaches can improve perceptual quality, they often incur substantial computational costs and may generalize poorly when trained on limited paired benchmarks. In this work, we cast LLIE as an iterative, stepwise refinement process and propose HVR-SSLE (Hierarchical Visual Reasoning for Self-Supervised Low-light image Enhancement), a compact recursive framework that alternates low-level local refinement and high-level global restoration modules for progressive enhancement. Despite having only 0.34M parameters, HVR-SSLE delivers progressive refinement without the heavy computational burden of existing models. We further quantify scene-level train–test overlap in widely used benchmarks such as LOL-v1/v2, highlighting potential evaluation bias. To reduce reliance on LLIE-specific paired data, we train HVR-SSLE in a self-supervised manner on the general-purpose COCO dataset. Diverse low-light inputs are synthesized by applying parametric gamma-based degradation curves to normal-light images. The resulting model is then evaluated in a zero-shot setting on standard LLIE benchmarks. Trained solely on COCO, HVR-SSLE achieves competitive PSNR/SSIM on paired benchmarks such as LOL-v2 (Synthetic) and LSRW, and yields favorable no-reference scores (e.g., NIQE and PIQE) on real-world unpaired datasets including DICM and LIME, indicating strong cross-dataset generalization.
 
@@ -82,3 +84,22 @@ Low-light image enhancement (LLIE) is a fundamental problem in computational pho
 - wandb 401: set `WANDB_DISABLED=true` or run `wandb login` with valid token.
 - Port conflicts: change `--main_process_port` in `accelerate launch`.
 - Data path errors: verify paths in `exp_config/config.py`.
+
+
+## Citation
+
+If you find this work useful, please cite:
+
+```bibtex
+@ARTICLE{11396663,
+  author={Choo, Dongwon and Deng, Qikang and Park, Taewon and Lee, Dohoon},
+  journal={IEEE Access}, 
+  title={HVR-SSLE: Hierarchical Visual Reasoning for Self-Supervised Low-Light Image Enhancement}, 
+  year={2026},
+  volume={14},
+  number={},
+  pages={34705-34725},
+  keywords={Cognition;Visualization;Lighting;Image color analysis;Image enhancement;Computational modeling;Image restoration;Transformers;Benchmark testing;Adaptation models;Low-light image enhancement (LLIE);self-supervised learning;zero-shot generalization;hierarchical visual reasoning;Gamma correction},
+  doi={10.1109/ACCESS.2026.3665009}
+}
+```
